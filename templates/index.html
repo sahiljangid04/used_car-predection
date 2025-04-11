@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Meta tags and title -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Car Price Predictor</title>
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="static/css/style.css">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body class="modern-bg d-flex align-items-center justify-content-center vh-100">
+
+  <div class="container-fluid split-screen">
+    <!-- Left Side: Visual Content -->
+    <div class="left-side d-none d-md-flex align-items-center justify-content-center">
+      <div class="info-text">
+        <h1 class="title">Discover Your Car's Value Instantly</h1>
+        <p class="subtitle">Accurate and fast price predictions at your fingertips. Enter your car details to get started.</p>
+      </div>
+    </div>
+
+    <!-- Right Side: Form Card -->
+    <div class="right-side d-flex align-items-center justify-content-center">
+      <div class="form-card glass-card p-5 shadow-lg">
+        <h2 class="text-center mb-4">Car Price Predictor</h2>
+        
+        <!-- Form Starts Here -->
+        <form method="post" onsubmit="send_data(); return false;">
+          
+          <!-- Company Selection -->
+          <div class="form-group animated-input">
+            <label for="company" class="form-label">Select Company</label>
+            <select class="custom-select" id="company" name="company" required onchange="updateCarModels(this.value)">
+              <option value="">Choose Company</option>
+              {% for comp in company %}
+                <option value="{{ comp }}">{{ comp }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Model Selection -->
+          <div class="form-group animated-input">
+            <label for="car_model" class="form-label">Select Model</label>
+            <select class="custom-select" id="car_model" name="car_model" required>
+              <option value="">Choose Model</option>
+            </select>
+          </div>
+
+          <!-- Year of Purchase -->
+          <div class="form-group animated-input">
+            <label for="year" class="form-label">Select Year of Purchase</label>
+            <select class="custom-select" id="year" name="year" required>
+              <option value="">Choose Year</option>
+              {% for year in year %}
+                <option value="{{ year }}">{{ year }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Fuel Type -->
+          <div class="form-group animated-input">
+            <label for="fuel_type" class="form-label">Select Fuel Type</label>
+            <select class="custom-select" id="fuel_type" name="fuel_type" required>
+              <option value="">Choose Fuel Type</option>
+              {% for fuel_type in fuel_type %}
+                <option value="{{ fuel_type }}">{{ fuel_type }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Mileage -->
+          <div class="form-group animated-input">
+            <label for="kilo_driven" class="form-label">Enter Mileage (in kms)</label>
+            <input class="form-control" type="text" id="kilo_driven" name="kilo_driven" placeholder="e.g., 15000" required>
+          </div>
+
+          <!-- Prediction Button -->
+          <button class="btn btn-primary mt-4 animated-button btn-block" type="submit">Predict Price</button>
+        </form>
+
+        <!-- Prediction Result Display -->
+        <div class="prediction-result mt-4 text-center">
+          <h4><span id="prediction" class="text-info"></span></h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript for Prediction -->
+  <script type="text/javascript">
+    function updateCarModels(selectedCompany) {
+      var carModelSelect = document.getElementById("car_model");
+      carModelSelect.innerHTML = "";  // Clear existing options
+
+      {% for row in car_model %}
+        if ("{{ row['Make'] }}" === selectedCompany) {
+          var newOption = document.createElement("option");
+          newOption.value = "{{ row['Model'] }}";
+          newOption.innerHTML = "{{ row['Model'] }}";
+          carModelSelect.options.add(newOption);
+        }
+      {% endfor %}
+    }
+
+    function send_data() {
+      var fd = new FormData(document.querySelector('form'));
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/predict', true);
+      document.getElementById("prediction").innerHTML = "Predicting price...";
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          document.getElementById("prediction").innerHTML = "Estimated Price: ₹" + xhr.responseText;
+        }
+      };
+      xhr.send(fd);
+    }
+  </script>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
